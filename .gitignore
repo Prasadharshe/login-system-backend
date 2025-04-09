@@ -5,3 +5,4 @@ login-system-backend/.env
 # OS-related files
 .DS_Store
 Thumbs.db
+.env
