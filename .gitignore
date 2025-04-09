@@ -1,0 +1,7 @@
+# Node modules & environment
+login-system-backend/node_modules/
+login-system-backend/.env
+
+# OS-related files
+.DS_Store
+Thumbs.db
