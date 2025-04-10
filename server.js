@@ -59,7 +59,7 @@ app.post("/register", async (req, res) => {
     const newUser = new User({ name, email, password });
     await newUser.save();
     res.status(201).json({
-      message: "✅ Registration successful, Redirecting to dashboard",
+      message: "✅ Registration successful, Redirecting to Login page",
     });
   } catch (error) {
     console.error("❌ Registration Error:", error);
