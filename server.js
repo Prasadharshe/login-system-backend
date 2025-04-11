@@ -25,14 +25,17 @@ app.use(express.static(path.join(__dirname, "../login-system-frontend")));
 //     process.exit(1);
 //   });
 
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => {
-  console.log("Connected to MongoDB Atlas");
-}).catch((err) => {
-  console.error("MongoDB connection error:", err);
-});
+mongoose
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log("Connected to MongoDB Atlas");
+  })
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+  });
 
 // Define User Schema & Model
 const userSchema = new mongoose.Schema({
@@ -78,7 +81,10 @@ app.post("/login", async (req, res) => {
     }
 
     // Send the user's name along with the success message
-    res.json({ message: "✅ Login Successful, Redirecting..", name: user.name });
+    res.json({
+      message: "✅ Login Successful, Redirecting..",
+      name: user.name,
+    });
   } catch (error) {
     console.error("❌ Login Error:", error);
     res.status(500).json({ message: "❌ Server Error" });
@@ -93,4 +99,3 @@ app.listen(PORT, () =>
 app.get("/", (req, res) => {
   res.send("🎉 Backend is working!");
 });
-
