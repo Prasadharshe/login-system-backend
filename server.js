@@ -11,14 +11,6 @@ const { SessionsClient } = require("@google-cloud/dialogflow");
 const axios = require("axios");
 const moment = require('moment-timezone');
 
-app.use(cors({
-  origin: ['http://localhost:3000', 'https://prasadharshe.github.io/login-system-frontend/'], // Add frontend URLs here
-  credentials: true, // if you send cookies or auth headers
-}));
-
-// other middleware
-app.use(express.json());
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -26,6 +18,14 @@ const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGO_URI;
 const DIALOGFLOW_KEY_JSON = process.env.DIALOGFLOW_KEY_JSON;
 const DIALOGFLOW_PROJECT_ID = process.env.DIALOGFLOW_PROJECT_ID;
+
+app.use(cors({
+  origin: ['http://localhost:3000', 'https://prasadharshe.github.io/login-system-frontend/'], // Add frontend URLs here
+  credentials: true, // if you send cookies or auth headers
+}));
+
+// other middleware
+app.use(express.json());
 
 if (!MONGO_URI || !DIALOGFLOW_KEY_JSON || !DIALOGFLOW_PROJECT_ID) {
   console.error("❌ Missing required environment variables in .env");
