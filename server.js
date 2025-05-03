@@ -1,6 +1,6 @@
 // Load .env variables at the top
 require("dotenv").config();
-const timezones = require('./timezones.json');
+const timezones = require("./timezones.json");
 const express = require("express");
 const path = require("path");
 const mongoose = require("mongoose");
@@ -9,7 +9,8 @@ const bodyParser = require("body-parser");
 const { v4: uuidv4 } = require("uuid");
 const { SessionsClient } = require("@google-cloud/dialogflow");
 const axios = require("axios");
-const moment = require('moment-timezone');
+const moment = require("moment-timezone");
+const helmet = require("helmet");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,24 +20,30 @@ const MONGO_URI = process.env.MONGO_URI;
 const DIALOGFLOW_KEY_JSON = process.env.DIALOGFLOW_KEY_JSON;
 const DIALOGFLOW_PROJECT_ID = process.env.DIALOGFLOW_PROJECT_ID;
 
-app.use(cors({
-  origin: ['http://localhost:3000', 'https://prasadharshe.github.io/login-system-frontend/'], // Add frontend URLs here
-  credentials: true, // if you send cookies or auth headers
-}));
+// ✅ Create Dialogflow session client using key file
+const dialogflowKey = JSON.parse(process.env.DIALOGFLOW_KEY_JSON);
+const sessionClient = new SessionsClient({ credentials: dialogflowKey });
+
+
+app.use(
+  cors({
+    origin: "https://prasadharshe.github.io",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 
 // other middleware
 app.use(express.json());
+app.use(helmet());
+
 
 if (!MONGO_URI || !DIALOGFLOW_KEY_JSON || !DIALOGFLOW_PROJECT_ID) {
   console.error("❌ Missing required environment variables in .env");
   process.exit(1);
 }
 
-// ✅ Create Dialogflow session client using key file
-const sessionClient = new SessionsClient({credentials : process.env.DIALOGFLOW_KEY_JSON,});
-
 // Middleware
-app.use(cors());
 app.use(bodyParser.json());
 
 // Serve static frontend files
@@ -62,7 +69,7 @@ const messageSchema = new mongoose.Schema({
   timestamp: {
     type: Date,
     default: Date.now,
-  },  
+  },
 });
 const Message = mongoose.model("Message", messageSchema);
 
@@ -72,9 +79,11 @@ function getCurrentTime(inputText) {
   console.log("Normalized Input:", lowerText);
 
   const prefix = "time in ";
-  
+
   // Remove the "time in " prefix from the input if it exists
-  let locationInput = lowerText.startsWith(prefix) ? lowerText.slice(prefix.length) : lowerText;
+  let locationInput = lowerText.startsWith(prefix)
+    ? lowerText.slice(prefix.length)
+    : lowerText;
   locationInput = locationInput.trim();
   console.log("Input for matching:", locationInput);
 
@@ -82,21 +91,26 @@ function getCurrentTime(inputText) {
   const inputKeys = Object.keys(timezones);
 
   // Try to find a key in the timezones object that matches the input city (case-insensitive)
-  const matchedKey = inputKeys.find(key => key.toLowerCase() === locationInput.toLowerCase());
+  const matchedKey = inputKeys.find(
+    (key) => key.toLowerCase() === locationInput.toLowerCase()
+  );
   console.log("Matched Key:", matchedKey);
 
   // If no match is found, return a warning message with the server time
   if (!matchedKey) {
-    return `⚠️ I couldn't find the timezone for "${locationInput}". Server time is ${moment().format('dddd, MMMM Do YYYY, h:mm:ss A')}`;
+    return `⚠️ I couldn't find the timezone for "${locationInput}". Server time is ${moment().format(
+      "dddd, MMMM Do YYYY, h:mm:ss A"
+    )}`;
   }
 
   // If a match is found, get the corresponding timezone
   const tz = timezones[matchedKey];
 
   // Return the current time in the matched timezone using Moment.js
-  return `🕒 Current time in ${matchedKey} is ${moment().tz(tz).format('dddd, MMMM Do YYYY, h:mm:ss A')}`;
+  return `🕒 Current time in ${matchedKey} is ${moment()
+    .tz(tz)
+    .format("dddd, MMMM Do YYYY, h:mm:ss A")}`;
 }
-
 
 // Registration route
 app.post("/register", async (req, res) => {
@@ -168,9 +182,10 @@ app.post("/api/chat", async (req, res) => {
 
       switch (intentName) {
         case "TimeIntent":
-          const city = result.parameters?.fields?.["geo-city"]?.stringValue || null;
+          const city =
+            result.parameters?.fields?.["geo-city"]?.stringValue || null;
           reply = await getCurrentTime(city || "your location");
-          
+
           break;
 
         case "JokeIntent":
@@ -272,10 +287,9 @@ app.post("/webhook", express.json(), async (req, res) => {
         parameters["geo-country"] ||
         parameters["geo-state"] ||
         "";
-    
+
       responseText = await getCurrentTime(location || "your location");
-    }   
-    else if (intent === "WeatherIntent") {
+    } else if (intent === "WeatherIntent") {
       let city = parameters["geo-city"];
 
       // Fallback: extract city from user's message manually
