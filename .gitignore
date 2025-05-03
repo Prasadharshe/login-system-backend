@@ -6,3 +6,4 @@ login-system-backend/.env
 .DS_Store
 Thumbs.db
 .env
+dialogflow-key.json
