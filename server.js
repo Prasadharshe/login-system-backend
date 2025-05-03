@@ -11,6 +11,14 @@ const { SessionsClient } = require("@google-cloud/dialogflow");
 const axios = require("axios");
 const moment = require('moment-timezone');
 
+app.use(cors({
+  origin: ['http://localhost:3000', 'https://prasadharshe.github.io/login-system-frontend/'], // Add frontend URLs here
+  credentials: true, // if you send cookies or auth headers
+}));
+
+// other middleware
+app.use(express.json());
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
