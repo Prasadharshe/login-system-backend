@@ -11,6 +11,7 @@ const { SessionsClient } = require("@google-cloud/dialogflow");
 const axios = require("axios");
 const moment = require("moment-timezone");
 const helmet = require("helmet");
+const dialogflow = require('@google-cloud/dialogflow');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -35,7 +36,12 @@ try {
   process.exit(1);
 }
 
-const sessionClient = new SessionsClient({ credentials: dialogflowKey });
+// const sessionClient = new SessionsClient({ credentials: dialogflowKey });
+
+// Enable fallback mode (uses HTTP/1.1 instead of gRPC)
+const sessionClient = new dialogflow.SessionsClient({
+  fallback: true
+});
 
 app.use(
   cors({
