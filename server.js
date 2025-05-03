@@ -16,18 +16,16 @@ const PORT = process.env.PORT || 3000;
 
 // Validate required environment variables
 const MONGO_URI = process.env.MONGO_URI;
-const DIALOGFLOW_KEY_PATH = process.env.DIALOGFLOW_KEY_PATH;
+const DIALOGFLOW_KEY_JSON = process.env.DIALOGFLOW_KEY_JSON;
 const DIALOGFLOW_PROJECT_ID = process.env.DIALOGFLOW_PROJECT_ID;
 
-if (!MONGO_URI || !DIALOGFLOW_KEY_PATH || !DIALOGFLOW_PROJECT_ID) {
+if (!MONGO_URI || !DIALOGFLOW_KEY_JSON || !DIALOGFLOW_PROJECT_ID) {
   console.error("❌ Missing required environment variables in .env");
   process.exit(1);
 }
 
 // ✅ Create Dialogflow session client using key file
-const sessionClient = new SessionsClient({
-  keyFilename: process.env.DIALOGFLOW_KEY_PATH,
-});
+const sessionClient = new SessionsClient({credentials : process.env.DIALOGFLOW_KEY_JSON,});
 
 // Middleware
 app.use(cors());
